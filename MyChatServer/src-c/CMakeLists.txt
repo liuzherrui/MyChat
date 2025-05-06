@@ -29,7 +29,7 @@ add_compile_definitions(NOMINMAX)
 # 添加工作目录
 set(WORKING_DIRECTORY ${PROJECT_SOURCE_DIR})
 MESSAGE("working directory: " ${PROJECT_SOURCE_DIR})
-#ADD_DEFINITIONS(-D_WORKING_DIRECTORY=\"${WORKING_DIRECTORY}\")
+#ADD_DEFINITIONS(-D _WORKING_DIRECTORY=\"${WORKING_DIRECTORY}\")
 
 MESSAGE(STATUS "(1 for debug and 0 for release) DEBUG_FLAG Value : " ${DEBUG_FLAG})
 
@@ -48,6 +48,10 @@ endif()
 
 # use virtual folders to manage projects
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
+
+# find libraries
+find_library(WS2_32_LIB ws2_32)
+MESSAGE(STATUS "--------------- Path: " ${WS2_32_LIB} " ---------------")
 
 # add sub directory
 MESSAGE("---------------Starting Modules Make---------------")

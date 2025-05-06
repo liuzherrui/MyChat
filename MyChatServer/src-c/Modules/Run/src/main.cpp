@@ -6,6 +6,7 @@ using namespace MyChat;
 
 int main(int argc, char* argv[])
 {
+
 	ServerKernel sk;
 	sk.init();
 	sk.start();
