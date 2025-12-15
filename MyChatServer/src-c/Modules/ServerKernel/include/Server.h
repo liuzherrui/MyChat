@@ -2,7 +2,7 @@
 #include <WinSock2.h>
 
 
-#pragma comment(lib,"ws2_32.lib")
+//#pragma comment(lib,"ws2_32.lib")
 
 namespace MyChat
 {
@@ -20,10 +20,13 @@ namespace MyChat
 		int GetErrorCode();
 
 	private:
+		WORD m_wSocketVersionRequired;
+		WSADATA m_wdSockMsg;
 		SOCKET m_ListenSocket;
 		SOCKADDR_IN m_SocketAddr_Info;
 
 		bool m_bRunning = false;
+		int m_iErrorCode;
 		unsigned __int64 m_uTickTime = -1;
 
 	};

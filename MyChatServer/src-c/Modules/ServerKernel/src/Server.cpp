@@ -11,8 +11,11 @@ namespace MyChat
 {
 	ServerKernel::ServerKernel()
 	{
+		m_wSocketVersionRequired = -1;
+		memset(&m_wdSockMsg, 0, sizeof(WSADATA));
 		memset(&m_ListenSocket, 0, sizeof(m_SocketAddr_Info));
 		memset(&m_SocketAddr_Info, 0, sizeof(m_SocketAddr_Info));
+		m_iErrorCode = 0;
 	}
 
 	ServerKernel::~ServerKernel()
@@ -23,9 +26,8 @@ namespace MyChat
 	int ServerKernel::init()
 	{
 		// 开启网络库
-		WORD wVersionRequird = MAKEWORD(2, 2);	// MAKEWORD(主版本,副版本)
-		WSADATA wdScokMsg;
-		int status = WSAStartup(wVersionRequird, &wdScokMsg);
+		m_wSocketVersionRequired = MAKEWORD(2, 2);	// MAKEWORD(主版本,副版本)
+		int status = WSAStartup(m_wSocketVersionRequired, &m_wdSockMsg);
 		switch (status)
 		{
 		case WSASYSNOTREADY:
@@ -63,7 +65,7 @@ namespace MyChat
 		}
 
 		// 校验版本
-		if (2 != HIBYTE(wdScokMsg.wVersion) || 2 != LOBYTE(wdScokMsg.wVersion))
+		if (2 != HIBYTE(m_wdSockMsg.wVersion) || 2 != LOBYTE(m_wdSockMsg.wVersion))
 		{
 			std::cout << "[ServerKernel][Init Error]: 版本不存在" << std::endl;
 			WSACleanup();
@@ -79,6 +81,7 @@ namespace MyChat
 		m_ListenSocket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
 		if (INVALID_SOCKET == m_ListenSocket)
 		{
+			m_iErrorCode = WSAGetLastError();
 			std::cout << "[ServerKernel][Start Error]: 创建socket失败 error:" << WSAGetLastError() << std::endl;
 			WSACleanup();
 			return -1;
@@ -93,6 +96,7 @@ namespace MyChat
 		m_SocketAddr_Info.sin_port = htons(port);
 		if (SOCKET_ERROR == bind(m_ListenSocket, (struct sockaddr*)&m_SocketAddr_Info, sizeof(m_SocketAddr_Info)))
 		{
+			m_iErrorCode = WSAGetLastError();
 			std::cout << "[ServerKernel][Start Error]: 绑定地址失败 error:" << WSAGetLastError() << std::endl;
 			closesocket(m_ListenSocket);
 			WSACleanup();
@@ -103,6 +107,7 @@ namespace MyChat
 		// 开始监听
 		if (SOCKET_ERROR == listen(m_ListenSocket, SOMAXCONN))
 		{
+			m_iErrorCode = WSAGetLastError();
 			std::cout << "[ServerKernel][Start Error]: 监听失败 error:" << WSAGetLastError() << std::endl;
 			closesocket(m_ListenSocket);
 			WSACleanup();
@@ -131,6 +136,7 @@ namespace MyChat
 		SOCKET socketClient = accept(m_ListenSocket, (struct sockaddr*)&sockClient, &nLen);
 		if (INVALID_SOCKET == socketClient)
 		{
+			m_iErrorCode = WSAGetLastError();
 			std::cout << "[ServerKernel][Update Error]: 接受链接失败 error:" << WSAGetLastError() << std::endl;
 			closesocket(m_ListenSocket);
 			WSACleanup();

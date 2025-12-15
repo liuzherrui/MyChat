@@ -13,4 +13,4 @@ source_group(include FILES ${SERVELKERNEL_HEADER_FILES})
 source_group(src FILES ${SERVERKERNEL_SOURCE_FILES})
 
 set_target_properties(ServerKernel PROPERTIES FOLDER "modules")
-
+target_link_libraries(ServerKernel PRIVATE ${WS2_32_LIB})
